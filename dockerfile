@@ -13,5 +13,8 @@ RUN npm install
 # Copie le reste des fichiers dans le conteneur
 COPY . .
 
+# Expose le port (optionnel selon ton utilisation)
+EXPOSE 3000
+
 # Démarre l'application
 CMD ["node", "/app/src/app.js"]
