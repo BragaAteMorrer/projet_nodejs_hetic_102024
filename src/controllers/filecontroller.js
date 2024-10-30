@@ -1,23 +1,20 @@
-const { uploadFile, getUserFiles } = require('../models/File');
-const { getUser } = require('../models/User');
+const File = require('../models/file');
+const User = require('../models/user');
+const path = require('path');
+const fs = require('fs');
 
-async function upload(req, res) {
-  const userId = req.user.id;
-  const { fileName, fileSize } = req.body;
+exports.uploadFile = async (req, res) => {
+  // Logique d'upload de fichier avec vérification du quota
+};
 
-  const user = await getUser(userId);
-  if (user.quota_used + fileSize > 2 * 1024 * 1024 * 1024) {
-    return res.status(400).send("Quota exceeded");
-  }
+exports.deleteFile = async (req, res) => {
+  // Logique de suppression de fichier
+};
 
-  await uploadFile(userId, fileName, fileSize);
-  res.status(201).send("File uploaded successfully");
-}
+exports.getFiles = async (req, res) => {
+  // Récupérer la liste de fichiers de l'utilisateur
+};
 
-async function getFiles(req, res) {
-  const userId = req.user.id;
-  const files = await getUserFiles(userId);
-  res.status(200).json(files);
-}
-
-module.exports = { upload, getFiles };
+exports.generateShareLink = async (req, res) => {
+  // Générer un lien temporaire pour partager un fichier
+};

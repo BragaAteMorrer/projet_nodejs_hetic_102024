@@ -1,23 +1,29 @@
-version: '3'
 services:
-  app:
-    build: .
-    container_name: file_server_app
+  backend:
+    build:
+      context: .  # Le contexte reste la racine du projet
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src  # Monte directement ./src comme /app
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
-      - db
+      - mariadb
     environment:
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=password
-      - DB_NAME=file_db
+      DB_HOST: mariadb
+      DB_USER: root
+      DB_PASSWORD: examplepassword
+      DB_NAME: file_server_db
 
-  db:
+  mariadb:
     image: mariadb:latest
-    container_name: file_server_db
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=file_db
+      MYSQL_ROOT_PASSWORD: examplepassword
+      MYSQL_DATABASE: file_server_db
     ports:
-      - "3307:3306"
+      - '3306:3306'
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:
