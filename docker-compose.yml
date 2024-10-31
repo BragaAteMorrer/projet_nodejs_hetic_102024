@@ -3,8 +3,6 @@ services:
     build:
       context: .  # Le contexte reste la racine du projet
       dockerfile: Dockerfile
-    volumes:
-      - ./src:/app/src  # Monte directement ./src comme /app
     ports:
       - '3000:3000'
     depends_on:
@@ -14,6 +12,7 @@ services:
       DB_USER: root
       DB_PASSWORD: examplepassword
       DB_NAME: file_server_db
+    restart: always  # Redémarrer si la connexion échoue
 
   mariadb:
     image: mariadb:latest
