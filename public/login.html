@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Connexion</h1>
+    <form id="loginForm">
+      <label for="username">Nom d'utilisateur:</label>
+      <input type="text" id="username" name="username" required>
+      <label for="password">Mot de passe:</label>
+      <input type="password" id="password" name="password" required>
+      <button type="submit">Se connecter</button>
+    </form>
+    <p>Pas encore inscrit? <a href="register.html">S'inscrire</a></p>
+  </div>
+
+  <script>
+    // Gestionnaire de soumission du formulaire de connexion
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert('Connexion réussie');
+        // Rediriger vers une autre page après la connexion réussie
+      } else {
+        alert('Erreur: ' + result.error);
+      }
+    });
+  </script>
+</body>
+</html>
