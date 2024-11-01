@@ -40,7 +40,7 @@ Cette application permet aux utilisateurs d'enregistrer, de télécharger et de 
    ```bash
    node src/app.js
    ```
-   L'application sera accessible à `http://localhost:3000`.
+   L'application sera accessible à `http://localhost:3000/accueil`.
 
 ## Routes Principales
 
