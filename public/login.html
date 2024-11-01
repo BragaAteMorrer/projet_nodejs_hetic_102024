@@ -20,7 +20,6 @@
   </div>
 
   <script>
-    // Gestionnaire de soumission du formulaire de connexion
     document.getElementById('loginForm').addEventListener('submit', async (event) => {
       event.preventDefault();
       const username = document.getElementById('username').value;
@@ -35,7 +34,6 @@
       const result = await response.json();
       if (response.ok) {
         alert('Connexion réussie');
-        // Rediriger vers accueil.html après la connexion réussie
         window.location.href = 'accueil.html';
       } else {
         alert('Erreur: ' + result.error);

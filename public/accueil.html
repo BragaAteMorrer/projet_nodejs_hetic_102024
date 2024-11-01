@@ -8,9 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Section de navigation -->
     <div id="authButtons" style="text-align: right; margin-bottom: 20px;">
-      <!-- Les boutons seront ajoutés par JavaScript en fonction de l'état de connexion -->
     </div>
 
     <h1>Upload de fichier</h1>
@@ -21,7 +19,7 @@
 
     <h2 id="generatedLink"></h2>
     <h2>Fichiers déjà uploadés :</h2>
-    <ul id="fileList"></ul> <!-- Liste des fichiers -->
+    <ul id="fileList"></ul>
   </div>
 
   <script>
@@ -42,19 +40,17 @@
       const isAuthenticated = await checkAuth();
 
       if (isAuthenticated) {
-        // Bouton de déconnexion si l'utilisateur est connecté
         const logoutButton = document.createElement('button');
         logoutButton.innerText = 'Déconnexion';
-        logoutButton.classList.add('logout-button'); // Ajouter une classe pour le style rouge
+        logoutButton.classList.add('logout-button');
         logoutButton.onclick = async () => {
           await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
-          document.cookie = 'session=; Max-Age=0'; // Supprime le cookie session
+          document.cookie = 'session=; Max-Age=0';
           updateAuthButtons();
           alert('Vous avez été déconnecté.');
         };
         authButtons.appendChild(logoutButton);
       } else {
-        // Boutons de connexion et d'enregistrement si l'utilisateur n'est pas connecté
         const loginButton = document.createElement('button');
         loginButton.innerText = 'Connexion';
         loginButton.onclick = () => window.location.href = '/login.html';

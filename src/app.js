@@ -10,38 +10,32 @@ const fileRoutes = require('./routes/fileRoutes');
 const app = express();
 const PORT = 3000;
 
-// Middleware pour parser le JSON et les cookies
 app.use(express.json());
 app.use(cookieParser());
 
-// Middleware pour servir les fichiers statiques
 app.use(express.static(path.join(__dirname, '../public')));
 
 function checkAuth(req) {
-  console.log("Cookies reçus:", req.cookies); // Pour vérifier les cookies
+  console.log("Cookies reçus:", req.cookies);
   return req.cookies && req.cookies.session;
 }
 
 
-// Middleware pour vérifier si l'utilisateur est authentifié
 function requireAuth(req, res, next) {
   if (checkAuth(req)) {
-    next(); // Si l'utilisateur est authentifié, passer à la route suivante
+    next();
   } else {
-    res.redirect('/login.html'); // Rediriger vers la page de connexion si non authentifié
+    res.redirect('/login.html');
   }
 }
 
-// Route pour la page d'accueil avec vérification d'authentification
 app.get('/accueil.html', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'accueil.html'));
 });
 
-// Intégration des routes d'authentification et de fichiers avec Express
 app.use('/auth', authRoutes);
 app.use('/files', fileRoutes);
 
-// Serveur de fichiers statiques si la requête correspond à un fichier HTML ou CSS
 function serveStaticFile(filePath, res) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -54,7 +48,6 @@ function serveStaticFile(filePath, res) {
   });
 }
 
-// Fonction router pour gérer les autres routes avec le serveur HTTP existant
 function router(req, res) {
   if (req.url === '/' || req.url === '/login.html') {
     serveStaticFile(path.join(__dirname, '../public', 'login.html'), res);
@@ -68,7 +61,6 @@ function router(req, res) {
   }
 }
 
-// Création du serveur HTTP
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
     let body = '';
@@ -89,8 +81,7 @@ const server = http.createServer((req, res) => {
   }
 });
 
-// Démarrage du serveur Express et synchronisation avec la base de données
-sequelize.sync({ force: true })
+sequelize.sync({ alter: true })
   .then(() => {
     app.listen(PORT, () => console.log(`Express server running on http://localhost:${PORT}`));
     server.listen(PORT + 1, () => console.log(`HTTP server running on http://localhost:${PORT + 1}`));

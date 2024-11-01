@@ -6,7 +6,7 @@ const File = sequelize.define('File', {
   filename: { type: DataTypes.STRING, allowNull: false },
   path: { type: DataTypes.STRING, allowNull: false },
   size: { type: DataTypes.BIGINT, allowNull: false },
-  expirationDate: { type: DataTypes.DATE },  // Pour les liens temporaires
+  expirationDate: { type: DataTypes.DATE },
 }, {
   timestamps: true,
 });

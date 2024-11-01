@@ -1,7 +1,6 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 
-// Contrôleur pour l'inscription
 exports.register = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -15,7 +14,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// Contrôleur pour la connexion
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { username: req.body.username } });
@@ -34,3 +32,4 @@ exports.logout = (req, res) => {
   res.clearCookie('session', { path: '/' });
   res.status(200).json({ message: 'Logout successful' });
 };
+

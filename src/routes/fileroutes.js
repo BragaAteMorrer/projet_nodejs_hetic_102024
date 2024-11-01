@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post('/upload', uploadFile, saveFile);
 router.get('/:id/download', downloadFile);
-router.get('/', getUserFiles); // Nouvelle route pour obtenir tous les fichiers
+router.get('/', getUserFiles);
 
 module.exports = router;

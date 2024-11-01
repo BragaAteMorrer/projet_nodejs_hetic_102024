@@ -1,6 +1,3 @@
-/* styles.css */
-
-/* Estilos básicos para o corpo */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -11,7 +8,6 @@ body {
     margin: 0;
   }
   
-  /* Estilos para o contêiner do formulário */
   .container {
     background-color: #fff;
     padding: 20px;
@@ -23,12 +19,10 @@ body {
     box-sizing: border-box;
   }
   
-  /* Estilos para os títulos */
   h1 {
     margin-bottom: 20px;
   }
   
-  /* Estilos para os rótulos e campos de entrada */
   label {
     display: block;
     margin-bottom: 5px;
@@ -45,7 +39,6 @@ body {
     box-sizing: border-box;
   }
   
-  /* Estilos para o botão */
   button {
     width: 100%;
     padding: 10px;
@@ -60,7 +53,6 @@ body {
     background-color: #0056b3;
   }
   
-  /* Estilos para o link */
   p {
     margin-top: 10px;
   }
@@ -74,9 +66,7 @@ body {
     text-decoration: underline;
   }
 
-/* styles.css */
 
-/* Styles pour le corps */
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f4;
@@ -88,7 +78,6 @@ body {
   padding: 0;
 }
 
-/* Conteneur principal */
 .container {
   background-color: #fff;
   padding: 20px;
@@ -100,12 +89,10 @@ body {
   box-sizing: border-box;
 }
 
-/* Titre principal */
 h1 {
   margin-bottom: 20px;
 }
 
-/* Champs d'entrée et boutons */
 input[type="file"] {
   width: 100%;
   margin-bottom: 10px;
@@ -126,7 +113,6 @@ button:hover {
   background-color: #0056b3;
 }
 
-/* Bouton de déconnexion en rouge */
 .logout-button {
   background-color: #dc3545;
   color: #fff;
@@ -136,7 +122,6 @@ button:hover {
   background-color: #c82333;
 }
 
-/* Liste des fichiers */
 ul#fileList {
   list-style-type: none;
   padding: 0;
@@ -148,7 +133,6 @@ ul#fileList li {
   margin-bottom: 5px;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .container {
       padding: 15px;

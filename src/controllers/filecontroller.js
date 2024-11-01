@@ -5,15 +5,13 @@ const File = require('../models/file');
 const User = require('../models/user');
 const generateTemporaryLink = require('../utilis/generatelink');
 
-const MAX_SIZE = 100 * 1024 * 1024; // 100 MB
+const MAX_SIZE = 100 * 1024 * 1024;
 const uploadsDir = path.join(__dirname, '../../uploads');
 
-// Vérification de l'existence du dossier 'uploads'
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configuration de multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadsDir);
@@ -31,7 +29,7 @@ const upload = multer({
 exports.uploadFile = upload.single('file');
 
 exports.saveFile = async (req, res) => {
-  const userId = 1; // Utilisation temporaire de l'ID utilisateur pour les tests
+  const userId = 1;
 
   try {
     const filePath = req.file.path;
@@ -43,7 +41,7 @@ exports.saveFile = async (req, res) => {
     if (!user) return res.status(400).json({ error: 'Utilisateur invalide' });
     if (user.usedQuota + fileSize > user.maxQuota) return res.status(400).json({ error: 'Quota dépassé' });
 
-    const expiration = new Date(Date.now() + 3600 * 1000); // Expire dans 1 heure
+    const expiration = new Date(Date.now() + 3600 * 1000);
     const file = await File.create({
       filename,
       path: filePath,
@@ -76,12 +74,10 @@ exports.downloadFile = async (req, res) => {
 
     const filePath = file.path;
 
-    // Vérifie si le fichier existe physiquement sur le système de fichiers
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Fichier non trouvé sur le serveur' });
     }
 
-    // Envoie le fichier en tant que téléchargement
     res.download(filePath, file.filename, (err) => {
       if (err) {
         console.error('Erreur lors du téléchargement du fichier :', err);
@@ -95,7 +91,7 @@ exports.downloadFile = async (req, res) => {
 };
 
 exports.getUserFiles = async (req, res) => {
-  const userId = req.cookies.session; // Récupère l'ID de l'utilisateur connecté depuis le cookie
+  const userId = req.cookies.session;
 
   if (!userId) {
     return res.status(401).json({ error: 'Utilisateur non authentifié' });

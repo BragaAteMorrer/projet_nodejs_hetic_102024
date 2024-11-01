@@ -2,16 +2,15 @@ const express = require('express');
 const { register, login, logout } = require('../controllers/authController');
 const router = express.Router();
 
-router.post('/register', register); // Route pour l'inscription
-router.post('/login', login);       // Route pour la connexion
-router.post('/logout', logout);     // Route pour la déconnexion
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', logout);
 
-// Nouvelle route pour vérifier si l'utilisateur est authentifié
 router.get('/check', (req, res) => {
   if (req.cookies && req.cookies.session) {
-    res.sendStatus(200); // Utilisateur authentifié
+    res.sendStatus(200);
   } else {
-    res.sendStatus(401); // Utilisateur non authentifié
+    res.sendStatus(401);
   }
 });
 
