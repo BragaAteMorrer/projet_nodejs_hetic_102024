@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload de fichier</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Section de navigation -->
+    <div id="authButtons" style="text-align: right; margin-bottom: 20px;">
+      <!-- Les boutons seront ajoutés par JavaScript en fonction de l'état de connexion -->
+    </div>
+
+    <h1>Upload de fichier</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="file" required>
+      <button type="submit">Uploader</button>
+    </form>
+
+    <h2 id="generatedLink"></h2>
+    <h2>Fichiers déjà uploadés :</h2>
+    <ul id="fileList"></ul> <!-- Liste des fichiers -->
+  </div>
+
+  <script>
+    async function checkAuth() {
+      try {
+        const response = await fetch('/auth/check', { method: 'GET', credentials: 'include' });
+        return response.ok;
+      } catch (error) {
+        console.error('Erreur lors de la vérification de la connexion:', error);
+        return false;
+      }
+    }
+
+    async function updateAuthButtons() {
+      const authButtons = document.getElementById('authButtons');
+      authButtons.innerHTML = '';
+
+      const isAuthenticated = await checkAuth();
+
+      if (isAuthenticated) {
+        // Bouton de déconnexion si l'utilisateur est connecté
+        const logoutButton = document.createElement('button');
+        logoutButton.innerText = 'Déconnexion';
+        logoutButton.classList.add('logout-button'); // Ajouter une classe pour le style rouge
+        logoutButton.onclick = async () => {
+          await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+          document.cookie = 'session=; Max-Age=0'; // Supprime le cookie session
+          updateAuthButtons();
+          alert('Vous avez été déconnecté.');
+        };
+        authButtons.appendChild(logoutButton);
+      } else {
+        // Boutons de connexion et d'enregistrement si l'utilisateur n'est pas connecté
+        const loginButton = document.createElement('button');
+        loginButton.innerText = 'Connexion';
+        loginButton.onclick = () => window.location.href = '/login.html';
+
+        const registerButton = document.createElement('button');
+        registerButton.innerText = 'Enregistrement';
+        registerButton.onclick = () => window.location.href = '/register.html';
+
+        authButtons.appendChild(loginButton);
+        authButtons.appendChild(registerButton);
+      }
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(document.getElementById('uploadForm'));
+
+      try {
+        const response = await fetch('/files/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Erreur d\'upload');
+
+        const result = await response.json();
+        alert('Upload réussi!');
+        document.getElementById('generatedLink').innerText = `Lien temporaire: ${window.location.origin}${result.link} (Expire: ${new Date(result.expires).toLocaleString()})`;
+        loadUserFiles();
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert(`Erreur : ${error.message}`);
+      }
+    });
+
+    async function loadUserFiles() {
+      try {
+        const response = await fetch('/files');
+        if (!response.ok) throw new Error('Erreur de récupération des fichiers');
+
+        const files = await response.json();
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        files.forEach(file => {
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `<a href="${file.link}" target="_blank">${file.filename}</a> (Expire: ${new Date(file.expires).toLocaleString()})`;
+          fileList.appendChild(listItem);
+        });
+      } catch (error) {
+        console.error('Erreur lors de la récupération des fichiers:', error);
+      }
+    }
+
+    loadUserFiles();
+    updateAuthButtons();
+  </script>
+</body>
+</html>

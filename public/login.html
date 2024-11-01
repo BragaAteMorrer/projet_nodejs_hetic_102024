@@ -35,7 +35,8 @@
       const result = await response.json();
       if (response.ok) {
         alert('Connexion réussie');
-        // Rediriger vers une autre page après la connexion réussie
+        // Rediriger vers accueil.html après la connexion réussie
+        window.location.href = 'accueil.html';
       } else {
         alert('Erreur: ' + result.error);
       }

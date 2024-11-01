@@ -1,77 +1,122 @@
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
 const File = require('../models/file');
 const User = require('../models/user');
-const path = require('path');
-const fs = require('fs');
 const generateTemporaryLink = require('../utilis/generatelink');
 
-// Gestion de l'upload de fichiers avec quota
-exports.uploadFile = async (req, res) => {
+const MAX_SIZE = 100 * 1024 * 1024; // 100 MB
+const uploadsDir = path.join(__dirname, '../../uploads');
+
+// Vérification de l'existence du dossier 'uploads'
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configuration de multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `upload_${Date.now()}_${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: MAX_SIZE }
+});
+
+exports.uploadFile = upload.single('file');
+
+exports.saveFile = async (req, res) => {
+  const userId = 1; // Utilisation temporaire de l'ID utilisateur pour les tests
+
   try {
-    const user = await User.findByPk(req.body.userId);
-    const fileSize = parseInt(req.headers['content-length']);
+    const filePath = req.file.path;
+    const fileSize = req.file.size;
+    const filename = req.file.filename;
 
-    if (user.usedQuota + fileSize > user.maxQuota) {
-      return res.writeHead(400, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'Quota exceeded' }));
-    }
+    const user = await User.findByPk(userId);
 
-    const filePath = path.join(__dirname, '../uploads', req.body.filename);
-    fs.writeFileSync(filePath, req.body.fileData);  // Écrire le fichier
+    if (!user) return res.status(400).json({ error: 'Utilisateur invalide' });
+    if (user.usedQuota + fileSize > user.maxQuota) return res.status(400).json({ error: 'Quota dépassé' });
 
-    const file = await File.create({ filename: req.body.filename, path: filePath, size: fileSize, userId: user.id });
+    const expiration = new Date(Date.now() + 3600 * 1000); // Expire dans 1 heure
+    const file = await File.create({
+      filename,
+      path: filePath,
+      size: fileSize,
+      userId: 1,
+      expirationDate: expiration
+    });
+
     user.usedQuota += fileSize;
     await user.save();
 
-    res.writeHead(201, { 'Content-Type': 'application/json' }).end(JSON.stringify({ message: 'File uploaded', file }));
+    const { token } = generateTemporaryLink(file.id);
+    res.status(201).json({
+      message: 'Fichier uploadé',
+      link: `/files/${file.id}/download?token=${token}`,
+      expires: expiration
+    });
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'File upload failed' }));
+    res.status(500).json({ error: 'Échec de l\'upload du fichier' });
   }
 };
 
-// Suppression de fichier
-exports.deleteFile = async (req, res) => {
+exports.downloadFile = async (req, res) => {
   try {
     const file = await File.findByPk(req.params.id);
-    if (file) {
-      fs.unlinkSync(file.path);
-      await file.destroy();
 
-      const user = await User.findByPk(file.userId);
-      user.usedQuota -= file.size;
-      await user.save();
-
-      res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ message: 'File deleted' }));
-    } else {
-      res.writeHead(404, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'File not found' }));
-    }
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'Failed to delete file' }));
-  }
-};
-
-// Récupération des fichiers de l'utilisateur
-exports.getFiles = async (req, res) => {
-  try {
-    const files = await File.findAll({ where: { userId: req.body.userId } });
-    res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(files));
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'Failed to retrieve files' }));
-  }
-};
-
-// Génération de lien de partage temporaire
-exports.generateShareLink = async (req, res) => {
-  try {
-    const file = await File.findByPk(req.params.id);
     if (!file) {
-      return res.writeHead(404, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'File not found' }));
+      return res.status(404).json({ error: 'Fichier non trouvé dans la base de données' });
     }
 
-    const { token, expiration } = generateTemporaryLink(file.id);
-    file.expirationDate = new Date(expiration);
-    await file.save();
+    const filePath = file.path;
 
-    res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ link: `/files/${file.id}/download?token=${token}` }));
+    // Vérifie si le fichier existe physiquement sur le système de fichiers
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Fichier non trouvé sur le serveur' });
+    }
+
+    // Envoie le fichier en tant que téléchargement
+    res.download(filePath, file.filename, (err) => {
+      if (err) {
+        console.error('Erreur lors du téléchargement du fichier :', err);
+        res.status(500).json({ error: 'Échec du téléchargement du fichier' });
+      }
+    });
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'Failed to generate share link' }));
+    console.error('Erreur lors de la récupération du fichier :', error);
+    res.status(500).json({ error: 'Une erreur est survenue lors du téléchargement du fichier' });
+  }
+};
+
+exports.getUserFiles = async (req, res) => {
+  const userId = req.cookies.session; // Récupère l'ID de l'utilisateur connecté depuis le cookie
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Utilisateur non authentifié' });
+  }
+
+  try {
+    const files = await File.findAll({
+      where: { userId },
+      attributes: ['id', 'filename', 'expirationDate']
+    });
+
+    const fileLinks = files.map(file => ({
+      id: file.id,
+      filename: file.filename,
+      link: `/files/${file.id}/download`,
+      expires: file.expirationDate
+    }));
+
+    res.status(200).json(fileLinks);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des fichiers:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des fichiers' });
   }
 };

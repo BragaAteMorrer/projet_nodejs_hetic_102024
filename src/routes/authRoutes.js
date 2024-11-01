@@ -1,14 +1,18 @@
-const { register, login } = require('../controllers/authController');
+const express = require('express');
+const { register, login, logout } = require('../controllers/authController');
+const router = express.Router();
 
-function authRoutes(req, res) {
-  if (req.url === '/auth/register' && req.method === 'POST') {
-    register(req, res);
-  } else if (req.url === '/auth/login' && req.method === 'POST') {
-    login(req, res);
+router.post('/register', register); // Route pour l'inscription
+router.post('/login', login);       // Route pour la connexion
+router.post('/logout', logout);     // Route pour la déconnexion
+
+// Nouvelle route pour vérifier si l'utilisateur est authentifié
+router.get('/check', (req, res) => {
+  if (req.cookies && req.cookies.session) {
+    res.sendStatus(200); // Utilisateur authentifié
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Not Found' }));
+    res.sendStatus(401); // Utilisateur non authentifié
   }
-}
+});
 
-module.exports = authRoutes;
+module.exports = router;

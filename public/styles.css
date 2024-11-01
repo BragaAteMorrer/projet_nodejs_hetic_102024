@@ -73,3 +73,89 @@ body {
   a:hover {
     text-decoration: underline;
   }
+
+/* styles.css */
+
+/* Styles pour le corps */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Conteneur principal */
+.container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Titre principal */
+h1 {
+  margin-bottom: 20px;
+}
+
+/* Champs d'entrée et boutons */
+input[type="file"] {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Bouton de déconnexion en rouge */
+.logout-button {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+/* Liste des fichiers */
+ul#fileList {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+ul#fileList li {
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+      padding: 15px;
+      font-size: 0.9em;
+  }
+
+  button {
+      font-size: 0.9em;
+  }
+}

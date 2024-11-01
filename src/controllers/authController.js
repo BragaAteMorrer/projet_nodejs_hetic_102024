@@ -1,31 +1,36 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 
+// Contrôleur pour l'inscription
 exports.register = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = new User({ username: req.body.username, password: hashedPassword });
-    await user.save();
-    res.writeHead(201, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'User registered' }));
+    const user = await User.create({ 
+      username: req.body.username, 
+      password: hashedPassword 
+    });
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    res.writeHead(400, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Failed to register user' }));
+    res.status(400).json({ error: 'Failed to register user' });
   }
 };
 
+// Contrôleur pour la connexion
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { username: req.body.username } });
     if (user && await bcrypt.compare(req.body.password, user.password)) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ message: 'Login successful' }));
+      res.cookie('session', user.id, { httpOnly: true, path: '/', sameSite: 'strict' });
+      res.status(200).json({ message: 'Login successful' });
     } else {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid credentials' }));
+      res.status(401).json({ error: 'Invalid credentials' });
     }
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Login error' }));
+    res.status(500).json({ error: 'Login error' });
   }
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie('session', { path: '/' });
+  res.status(200).json({ message: 'Logout successful' });
 };
