@@ -12,12 +12,7 @@ Cette application permet aux utilisateurs d'enregistrer, de télécharger et de 
 ## Prérequis
 
 - Node.js (v14 ou supérieur)
-- Base de données MariaDB
-- Configurer les variables d'environnement suivantes pour MariaDB :
-  - `DB_NAME` : Nom de la base de données
-  - `DB_USER` : Utilisateur de la base de données
-  - `DB_PASSWORD` : Mot de passe de la base de données
-  - `DB_HOST` : Hôte de la base de données
+- Docker Desktop
 
 ## Installation
 
@@ -29,16 +24,12 @@ Cette application permet aux utilisateurs d'enregistrer, de télécharger et de 
 
 2. **Installer les dépendances**
    ```bash
-   npm install
+   docker-compose build
    ```
-
-3. **Configurer la base de données**
-   - Créer une base de données MariaDB.
-   - Remplir les informations de connexion dans les variables d'environnement.
-
+   
 4. **Démarrer le serveur**
    ```bash
-   node src/app.js
+   docker-compose up
    ```
    L'application sera accessible à `http://localhost:3000/accueil`.
 
